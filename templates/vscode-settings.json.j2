@@ -1,0 +1,132 @@
+{
+  "workbench.colorTheme": "Material Theme",
+  "workbench.colorCustomizations": {
+    "[Material Theme]": {
+      "activityBarBadge.background": "#64FFDA",
+      "activityBar.activeBorder": "#64FFDA",
+      "list.activeSelectionForeground": "#64FFDA",
+      "list.inactiveSelectionForeground": "#64FFDA",
+      "list.highlightForeground": "#64FFDA",
+      "scrollbarSlider.activeBackground": "#64FFDA50",
+      "editorSuggestWidget.highlightForeground": "#64FFDA",
+      "textLink.foreground": "#64FFDA",
+      "progressBar.background": "#64FFDA",
+      "pickerGroup.foreground": "#64FFDA",
+      "tab.activeBorder": "#64FFDA",
+      "notificationLink.foreground": "#64FFDA",
+      "editorWidget.resizeBorder": "#64FFDA",
+      "editorWidget.border": "#64FFDA",
+      "settings.modifiedItemIndicator": "#64FFDA",
+      "settings.headerForeground": "#64FFDA",
+      "panelTitle.activeBorder": "#64FFDA",
+      "breadcrumb.activeSelectionForeground": "#64FFDA",
+      "menu.selectionForeground": "#64FFDA",
+      "menubar.selectionForeground": "#64FFDA",
+      "editor.findMatchBorder": "#64FFDA",
+      "selection.background": "#64FFDA40",
+      "statusBarItem.remoteBackground": "#64FFDA"
+    }
+  },
+  "materialTheme.accent": "Bright Teal",
+  "workbench.iconTheme": "eq-material-theme-icons",
+  "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
+  "editor.inlineSuggest.enabled": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "eslint.probe": ["javascript", "javascriptreact"],
+  "editor.formatOnSave": true, // Might need to make false for SQL Fluff
+  "prettier.printWidth": 100,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["javascript", "javascriptreact", "vue"],
+  "eslint.alwaysShowStatus": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "emmet.triggerExpansionOnTab": true,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnType": true
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false,
+    "yaml": true
+  },
+  // SQL Stuff
+
+  "[sql]": {
+    "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
+    "editor.formatOnSave": false
+  },
+  "[jinja-sql]": {
+    "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
+    "editor.formatOnSave": false
+  },
+  "[sql-bigquery]": {
+    "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
+    "editor.formatOnSave": false
+  },
+  "[postgres]": {
+    "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
+    "editor.formatOnSave": false
+  },
+  "[snowflake-sqlsql]": {
+    "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
+    "editor.formatOnSave": false
+  },
+
+  "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
+  "sqlfluff.dialect": "snowflake",
+
+  "sqlfluff.env.customDotEnvFiles": ["${workspaceFolder}/example.env"],
+  "sqlfluff.env.useDotEnvFile": true,
+  "sqlfluff.excludeRules": ["L009"],
+  "sqlfluff.executablePath": "/opt/homebrew/bin/sqlfluff",
+  "sqlfluff.ignoreLocalConfig": false,
+  "sqlfluff.ignoreParsing": false,
+  "sqlfluff.rules": [],
+  "sqlfluff.suppressNotifications": false,
+  "sqlfluff.workingDirectory": "",
+  /* Linter */
+  "sqlfluff.linter.arguments": [],
+  "sqlfluff.linter.diagnosticSeverity": "error",
+  "sqlfluff.linter.diagnosticSeverityByRule": [
+    {
+      "rule": "L010",
+      "severity": "warning"
+    }
+  ],
+  "sqlfluff.linter.lintEntireProject": true,
+  /* Formatter */
+  "sqlfluff.format.arguments": ["--FIX-EVEN-UNPARSABLE"],
+  "sqlfluff.format.enabled": true,
+  "sqlfluff.format.languages": ["sql", "sql-bigquery", "jinja-sql", "postgres", "snowflake-sql"],
+  // For DBT
+  "sqlfluff.linter.run": "onSave",
+  "sqlfluff.experimental.format.executeInTerminal": true,
+  // End SQL Fluff
+  "rift.openaiKey": "api-key-here",
+  "diffEditor.ignoreTrimWhitespace": false,
+  "[vue]": {
+    // "editor.defaultFormatter": "Vue.volar"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "vue.inlayHints.missingProps": true,
+  "eslint.trace.server": "messages",
+
+  "git.autofetch": true,
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "files.exclude": {
+    "**/.git": false
+  },
+  "prisma.showPrismaDataPlatformNotification": false,
+  "github.copilot.editor.enableAutoCompletions": true
+  // "html.format.wrapAttributes": "force-expand-multiline"
+}

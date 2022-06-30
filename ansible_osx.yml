@@ -1,0 +1,499 @@
+---
+- hosts: localhost
+  vars:
+    git_user_name: "Philip Johnson"
+    git_user_email: "johnson.philip.louis@gmail.com"
+  tasks:
+    - name: Update Homebrew
+      community.general.homebrew:
+        update_homebrew: yes
+
+    - name: Install homebrew
+      include_role:
+        name: geerlingguy.mac.homebrew
+
+    - name: Make sure homebrew bin is in path
+      ansible.builtin.lineinfile:
+        path: /etc/paths
+        state: present
+        line: "/opt/homebrew/bin"
+      become: true
+      become_user: root
+
+    - name: "add custom homebrew repos"
+      community.general.homebrew_tap:
+        name: [adoptopenjdk/openjdk, fishtown-analytics/dbt, thoughtbot/formulae, weaveworks/tap]
+
+    - name: Install core packages via brew casks
+      community.general.homebrew_cask:
+        name: "{{ item }}"
+      ignore_errors: yes
+      with_items:
+        - 1password
+        - arc
+        - alfred
+        - appcleaner
+        - backblaze
+        - brave-browser
+        - cleanshot
+        - discord
+        - docker
+        - expressvpn
+        - figma
+        - google-cloud-sdk
+        - google-drive
+        - imageoptim
+        - kitty
+        - microsoft-office
+        - miro
+        - ngrok
+        - postico
+        - postman
+        - rectangle
+        - signal
+        - slack
+        - spotify
+        - telegram
+        - visual-studio-code
+        - vlc
+        - whatsapp
+        - zoom
+
+    - name: "Install homebrew packages"
+      community.general.homebrew:
+        name: [
+            "ansible", # For automation
+            "autoconf",
+            "automake",
+            "aws-iam-authenticator",
+            "awscli",
+            "bfg",
+            "cookiecutter", # For creating project templates
+            "coreutils",
+            "curl",
+            "direnv",
+            "dnsmasq",
+            "fzf",
+            "gh",
+            "git",
+            "gnu-time",
+            "gpg",
+            "graphviz", # For generating diagrams
+            "helm", # For Kubernetes package management
+            "htop",
+            "imagemagick",
+            "jq", # For JSON processing
+            "kubectl", # For Kubernetes management
+            "kubectx",
+            "kubernetes-cli",
+            "kubernetes-helm",
+            "libtool",
+            "libxslt",
+            "libyaml",
+            "mas",
+            "mkcert", # For creating locally-trusted development certificates
+            "nvm",
+            "openssl",
+            "pkg-config",
+            "postgresql",
+            "protobuf", # For working with Protocol Buffers
+            "pyenv",
+            "rbenv",
+            "rcm",
+            "readline",
+            "redis",
+            "sqlite3",
+            "terraform", # For infrastructure as code
+            "tmux",
+            "unixodbc",
+            "unzip",
+            "vim",
+            "watchman",
+            "xz",
+            "zlib",
+            "zsh",
+          ]
+        state: present
+        update_homebrew: yes
+
+    - name: "Install from Mac app store"
+      shell: mas install {{ item }}
+      with_items:
+        - 497799835 # xcode
+        - 540348655 # monosnap
+
+    - name: Get the path to ZSH
+      become: false
+      local_action: command which zsh
+      register: zsh_path
+
+    - name: "Ensure homebrew zsh is in allowed shells"
+      lineinfile:
+        path: /etc/shells
+        line: "{{ zsh_path.stdout }}"
+      become: true
+
+    - name: Install Oh My ZSH
+      shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+      args:
+        creates: "/Users/{{ lookup('env', 'USER') }}/.oh-my-zsh"
+
+    - name: Set ZSH as the default shell
+      shell: chsh -s $(which zsh) {{ lookup('env', 'USER') }}
+      become: true
+
+    - name: Ensure ~/.zshrc exists
+      file:
+        path: ~/.zshrc
+        state: touch
+
+    - name: Set up rbenv and install latest stable Ruby
+      block:
+        - name: Add rbenv init to ~/.zshrc
+          lineinfile:
+            path: ~/.zshrc
+            line: 'eval "$(rbenv init -)"'
+            state: present
+        - name: Install latest Ruby
+          shell: |
+            source ~/.zshrc
+            latest_ruby=$(rbenv install -l | grep -v - | tail -1)
+            rbenv install $latest_ruby || true
+            rbenv global $latest_ruby
+            gem install bundler cocoapods rubocop solargraph
+          args:
+            executable: /bin/zsh
+      rescue:
+        - name: Ruby setup failed
+          debug:
+            msg: "Ruby setup failed. Please check the error and try again."
+
+    - name: Set up pyenv and install latest stable Python
+      block:
+        - name: Add pyenv configuration to ~/.zshrc
+          blockinfile:
+            path: ~/.zshrc
+            block: |
+              export PYENV_ROOT="$HOME/.pyenv"
+              command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+              eval "$(pyenv init -)"
+        - name: Install latest Python
+          shell: |
+            source ~/.zshrc
+            latest_python=$(pyenv install --list | grep -v - | grep -v b | tail -1)
+            pyenv install $latest_python || true
+            pyenv global $latest_python
+            pip3 install --upgrade pip
+            pip3 install ansible
+          args:
+            executable: /bin/zsh
+      rescue:
+        - name: Python setup failed
+          debug:
+            msg: "Python setup failed. Please check the error and try again."
+
+    - name: Install additional Python packages
+      pip:
+        name:
+          - jupyter
+          - pandas
+          - numpy
+          - matplotlib
+          - seaborn
+          - scikit-learn
+          - requests
+          - fastapi
+          - streamlit
+          - great-expectations # For data validation
+          - dbt-core # For data transformation
+          - black # For code formatting
+
+    - name: Set up nvm and install latest stable Node.js
+      block:
+        - name: Create ~/.nvm directory
+          file:
+            path: ~/.nvm
+            state: directory
+        - name: Add nvm configuration to ~/.zshrc
+          blockinfile:
+            path: ~/.zshrc
+            block: |
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$(brew --prefix)/opt/nvm/nvm.sh" ] && \. "$(brew --prefix)/opt/nvm/nvm.sh"
+              [ -s "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm"
+        - name: Install latest Node.js
+          shell: |
+            source ~/.zshrc
+            nvm install node
+            nvm use node
+            npm install -g npm
+          args:
+            executable: /bin/zsh
+      rescue:
+        - name: Node.js setup failed
+          debug:
+            msg: "Node.js setup failed. Please check the error and try again."
+
+    - name: Install global npm packages
+      npm:
+        name: "{{ item }}"
+        global: yes
+      loop:
+        - "@vue/cli"
+        - apollo
+        - create-react-app
+        - eslint
+        - fx
+        - jest
+        - lighthouse
+        - generator-generator
+        - npm-check-updates
+        - playwright@latest
+        - prettier
+        - react-native-cli
+        - ts-node
+        - typescript
+        - wrangler
+
+    - name: Create a default VSCode configuration
+      template:
+        src: templates/vscode-settings.json.j2
+        dest: /Users/{{ lookup('env', 'USER') }}/Library/Application Support/Code/User/settings.json
+        owner: "{{ lookup('env', 'USER') }}"
+        force: yes
+
+    - name: Create a default VSCode keybinding configuration
+      template:
+        src: templates/vscode-keybindings.json.j2
+        dest: /Users/{{ lookup('env', 'USER') }}/Library/Application Support/Code/User/keybindings.json
+        owner: "{{ lookup('env', 'USER') }}"
+        force: yes
+
+    - name: Ensure VSCode is in PATH
+      lineinfile:
+        path: ~/.zshrc
+        line: 'export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"'
+        state: present
+
+    - name: Install VSCode extensions
+      shell: code --install-extension {{ item }}
+      with_items:
+        - apollographql.vscode-apollo
+        - BhargavDetroja.export-your-extensions
+        - bierner.markdown-mermaid
+        - bradlc.vscode-tailwindcss
+        - castwide.solargraph
+        - christian-kohler.path-intellisense
+        - chrmarti.regex
+        - clinyong.vscode-css-modules
+        - Codeium.codeium
+        - davidanson.vscode-markdownlint
+        - dbaeumer.vscode-eslint
+        - dorzey.vscode-sqlfluff
+        - eamodio.gitlens
+        - eamodio.gitlens
+        - EditorConfig.EditorConfig
+        - Equinusocio.vsc-community-material-theme
+        - Equinusocio.vsc-material-theme
+        - equinusocio.vsc-material-theme-icons
+        - esbenp.prettier-vscode
+        - Evidence.evidence-vscode
+        - formulahendry.auto-close-tag
+        - formulahendry.auto-rename-tag
+        - GitHub.copilot
+        - GitHub.copilot-chat
+        - GitHub.remotehub
+        - github.vscode-github-actions
+        - golang.go
+        - hollowtree.vue-snippets
+        - innoverio.vscode-dbt-power-user
+        - kaiwood.endwise
+        - karunamurti.haml
+        - KevinRose.vsc-python-indent
+        - mechatroner.rainbow-csv
+        - mhutchie.git-graph
+        - morph.rift-vscode
+        - mrmlnc.vscode-duplicate
+        - ms-azuretools.vscode-docker
+        - ms-azuretools.vscode-docker
+        - ms-kubernetes-tools.vscode-kubernetes-tools
+        - ms-playwright.playwright
+        - ms-python.black-formatter
+        - ms-python.debugpy
+        - ms-python.isort
+        - ms-python.python
+        - ms-python.vscode-pylance
+        - ms-python.vscode-pylance
+        - ms-toolsai.jupyter
+        - ms-toolsai.jupyter
+        - ms-toolsai.jupyter-keymap
+        - ms-toolsai.jupyter-renderers
+        - ms-toolsai.vscode-jupyter-cell-tags
+        - ms-toolsai.vscode-jupyter-slideshow
+        - ms-vscode-remote.remote-containers
+        - ms-vscode-remote.remote-containers
+        - ms-vscode-remote.remote-ssh
+        - ms-vscode-remote.remote-ssh-edit
+        - ms-vscode-remote.remote-wsl
+        - ms-vscode-remote.vscode-remote-extensionpack
+        - ms-vscode.azure-repos
+        - ms-vscode.js-debug
+        - ms-vscode.js-debug-companion
+        - ms-vscode.remote-explorer
+        - ms-vscode.remote-repositories
+        - ms-vscode.remote-server
+        - ms-vscode.Theme-MaterialKit
+        - ms-vscode.vscode-js-profile-table
+        - mtxr.sqltools
+        - mtxr.sqltools-driver-pg
+        - Natizyskunk.sftp
+        - neptunedesign.vs-sequential-number
+        - Nuxtr.nuxtr-vscode
+        - OlamilekanAjibola.css-selector-generator
+        - p1c2u.docker-compose
+        - Prisma.prisma
+        - redhat.vscode-yaml
+        - redhat.vscode-yaml
+        - richie5um2.vscode-sort-json
+        - rohit-gohri.format-code-action
+        - samuelcolvin.jinjahtml
+        - sdras.vue-vscode-snippets
+        - streetsidesoftware.code-spell-checker
+        - svelte.svelte-vscode
+        - Tyriar.sort-lines
+        - vincaslt.highlight-matching-tag
+        - vscode.bat
+        - vscode.builtin-notebook-renderers
+        - vscode.clojure
+        - vscode.coffeescript
+        - vscode.configuration-editing
+        - vscode.cpp
+        - vscode.csharp
+        - vscode.css
+        - vscode.css-language-features
+        - vscode.dart
+        - vscode.debug-auto-launch
+        - vscode.debug-server-ready
+        - vscode.diff
+        - vscode.docker
+        - vscode.emmet
+        - vscode.extension-editing
+        - vscode.fsharp
+        - vscode.git
+        - vscode.git-base
+        - vscode.github
+        - vscode.github-authentication
+        - vscode.go
+        - vscode.groovy
+        - vscode.grunt
+        - vscode.gulp
+        - vscode.handlebars
+        - vscode.hlsl
+        - vscode.html
+        - vscode.html-language-features
+        - vscode.ini
+        - vscode.ipynb
+        - vscode.jake
+        - vscode.java
+        - vscode.javascript
+        - vscode.json
+        - vscode.json-language-features
+        - vscode.julia
+        - vscode.latex
+        - vscode.less
+        - vscode.log
+        - vscode.lua
+        - vscode.make
+        - vscode.markdown
+        - vscode.markdown-language-features
+        - vscode.markdown-math
+        - vscode.media-preview
+        - vscode.merge-conflict
+        - vscode.microsoft-authentication
+        - vscode.npm
+        - vscode.objective-c
+        - vscode.perl
+        - vscode.php
+        - vscode.php-language-features
+        - vscode.powershell
+        - vscode.pug
+        - vscode.python
+        - vscode.r
+        - vscode.razor
+        - vscode.references-view
+        - vscode.restructuredtext
+        - vscode.ruby
+        - vscode.rust
+        - vscode.scss
+        - vscode.search-result
+        - vscode.shaderlab
+        - vscode.shellscript
+        - vscode.simple-browser
+        - vscode.sql
+        - vscode.swift
+        - vscode.theme-abyss
+        - vscode.theme-defaults
+        - vscode.theme-kimbie-dark
+        - vscode.theme-monokai
+        - vscode.theme-monokai-dimmed
+        - vscode.theme-quietlight
+        - vscode.theme-red
+        - vscode.theme-solarized-dark
+        - vscode.theme-solarized-light
+        - vscode.theme-tomorrow-night-blue
+        - vscode.tunnel-forwarding
+        - vscode.typescript
+        - vscode.typescript-language-features
+        - vscode.vb
+        - vscode.vscode-theme-seti
+        - vscode.xml
+        - vscode.yaml
+        - Vue.volar
+        - wayou.vscode-todo-highlight
+        - wejectchan.vue3-snippets-for-vscode
+        - wholroyd.jinja
+        - xabikos.JavaScriptSnippets
+        - yzhang.markdown-all-in-one
+
+    - name: Configure GitHub Command Line
+      shell: gh auth login
+      ignore_errors: yes
+
+    - name: Configure Git global settings
+      git_config:
+        name: "{{ item.name }}"
+        scope: global
+        value: "{{ item.value }}"
+      loop:
+        - { name: "user.name", value: "{{ git_user_name }}" }
+        - { name: "user.email", value: "{{ git_user_email }}" }
+        - { name: "core.editor", value: "code --wait" }
+        - { name: "init.defaultBranch", value: "main" }
+        - { name: "pull.rebase", value: "false" }
+        - { name: "push.default", value: "current" }
+
+    - name: Install and configure Starship
+      block:
+        - name: Install Starship
+          homebrew:
+            name: starship
+            state: present
+        - name: Add Starship init to ~/.zshrc
+          lineinfile:
+            path: ~/.zshrc
+            line: 'eval "$(starship init zsh)"'
+            state: present
+      rescue:
+        - name: Starship setup failed
+          debug:
+            msg: "Starship setup failed. Please check the error and try again."
+
+    - name: Create common development directories
+      file:
+        path: "~/{{ item }}"
+        state: directory
+      loop:
+        - Projects
+        - Work
+        - Scripts
+        - Data
