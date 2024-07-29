@@ -67,6 +67,7 @@
             "automake",
             "aws-iam-authenticator",
             "awscli",
+            "bat",
             "bfg",
             "cookiecutter", # For creating project templates
             "coreutils",
@@ -77,6 +78,7 @@
             "gh",
             "git",
             "gnu-time",
+            "go",
             "gpg",
             "graphviz", # For generating diagrams
             "helm", # For Kubernetes package management
@@ -104,6 +106,7 @@
             "redis",
             "sqlite3",
             "terraform", # For infrastructure as code
+            "tldr",
             "tmux",
             "unixodbc",
             "unzip",
@@ -111,6 +114,8 @@
             "watchman",
             "xz",
             "zlib",
+            "zsh-autosuggestions",
+            "zsh-syntax-highlighting",
             "zsh",
           ]
         state: present
@@ -207,6 +212,34 @@
           - great-expectations # For data validation
           - dbt-core # For data transformation
           - black # For code formatting
+          - pyspark
+          - pytest
+
+    - name: "Configure zsh plugins"
+      lineinfile:
+        path: ~/.zshrc
+        line: "{{ item }}"
+      loop:
+        - "source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+        - "source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+
+    - name: "Install VSCode Settings Sync extension"
+      shell: code --install-extension Shan.code-settings-sync
+
+    - name: "Create .gitignore_global file"
+      copy:
+        dest: ~/.gitignore_global
+        content: |
+          .DS_Store
+          *.log
+          node_modules/
+          .vscode/
+
+    - name: "Set global gitignore file"
+      git_config:
+        name: core.excludesfile
+        scope: global
+        value: ~/.gitignore_global
 
     - name: Set up nvm and install latest stable Node.js
       block:

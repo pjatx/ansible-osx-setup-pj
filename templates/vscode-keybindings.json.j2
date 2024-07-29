@@ -1,12 +1,7 @@
-// Place your key bindings in this file to override the defaultsauto[]
 [
   {
     "key": "ctrl+a ctrl+5",
     "command": "workbench.action.splitEditor"
-  },
-  {
-    "key": "cmd+\\",
-    "command": "-workbench.action.splitEditor"
   },
   {
     "key": "ctrl+a o",
@@ -21,49 +16,20 @@
     "command": "workbench.action.focusAboveGroup"
   },
   {
-    "key": "cmd+k cmd+up",
-    "command": "-workbench.action.focusAboveGroup"
-  },
-  {
     "key": "ctrl+a j",
     "command": "workbench.action.focusBelowGroup"
-  },
-  {
-    "key": "cmd+k cmd+down",
-    "command": "-workbench.action.focusBelowGroup"
   },
   {
     "key": "ctrl+a l",
     "command": "workbench.action.focusRightGroup"
   },
   {
-    "key": "cmd+k cmd+right",
-    "command": "-workbench.action.focusRightGroup"
-  },
-  {
     "key": "ctrl+a h",
     "command": "workbench.action.focusLeftGroup"
   },
   {
-    "key": "cmd+k cmd+left",
-    "command": "-workbench.action.focusLeftGroup"
-  },
-  {
-    "key": "cmd+r",
-    "command": "workbench.action.openRecent"
-  },
-  {
     "key": "ctrl+a ctrl+l",
     "command": "workbench.action.moveEditorToRightGroup"
-  },
-  {
-    "key": "cmd+k shift+cmd+right",
-    "command": "-workbench.action.moveEditorRightInGroup"
-  },
-  {
-    "key": "cmd+backspace",
-    "command": "-debug.removeBreakpoint",
-    "when": "breakpointsFocused && !breakpointSelected"
   },
   {
     "key": "ctrl+a ctrl+h",
@@ -79,7 +45,19 @@
   },
   {
     "key": "cmd+r",
-    "command": "-workbench.action.reloadWindow",
-    "when": "isDevelopment"
+    "command": "workbench.action.openRecent"
+  },
+  // New additions
+  {
+    "key": "ctrl+a ctrl+j",
+    "command": "workbench.action.moveEditorToBelowGroup"
+  },
+  {
+    "key": "ctrl+a ctrl+k",
+    "command": "workbench.action.moveEditorToAboveGroup"
+  },
+  {
+    "key": "ctrl+a x",
+    "command": "workbench.action.closeActiveEditor"
   }
 ]
