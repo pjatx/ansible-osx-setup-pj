@@ -32,20 +32,22 @@
   "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
   "editor.inlineSuggest.enabled": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "eslint.probe": ["javascript", "javascriptreact"],
+  "eslint.probe": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue"],
   "editor.formatOnSave": true, // Might need to make false for SQL Fluff
   "prettier.printWidth": 100,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
   },
-  "eslint.validate": ["javascript", "javascriptreact", "vue"],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue"],
   "eslint.alwaysShowStatus": true,
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": "active",
   "emmet.triggerExpansionOnTab": true,
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.formatOnType": true
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true
   },
   "[go]": {
     "editor.defaultFormatter": "golang.go"
@@ -53,7 +55,7 @@
   "github.copilot.enable": {
     "*": false,
     "plaintext": false,
-    "markdown": false,
+    "markdown": true,
     "scminput": false,
     "yaml": true
   },
@@ -127,6 +129,18 @@
     "**/.git": false
   },
   "prisma.showPrismaDataPlatformNotification": false,
-  "github.copilot.editor.enableAutoCompletions": true
+  "github.copilot.editor.enableAutoCompletions": true,
   // "html.format.wrapAttributes": "force-expand-multiline"
+    // Additional recommended settings
+  "editor.minimap.enabled": false,
+  "editor.wordWrap": "on",
+  "files.autoSave": "onFocusChange",
+  "workbench.editor.enablePreview": false,
+  "explorer.confirmDelete": false,
+  "terminal.integrated.persistentSessionReviveProcess": "never",
+  "editor.suggestSelection": "first",
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "extensions.ignoreRecommendations": true
 }
